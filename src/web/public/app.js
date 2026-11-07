@@ -97,8 +97,8 @@ function toast(msg, type = 'ok') {
 async function api(path, opts = {}) {
   const res = await fetch(path, {
     method: opts.method || 'GET',
-    headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    headers: opts.method && opts.method !== 'GET' ? { 'Content-Type': 'application/json' } : undefined,
+    body: opts.method && opts.method !== 'GET' ? JSON.stringify(opts.body || {}) : undefined,
     credentials: 'same-origin',
   });
   let data = null;
