@@ -59,10 +59,15 @@ load();
 
 /* ------------------------------ تخزين خارجي (Supabase) اختياري ------------------------------ */
 // لو حطيت SUPABASE_URL و SUPABASE_KEY بالـ .env بتنحفظ البيانات بقاعدة Supabase (جدول kv) وما بتضيع مع إعادة التشغيل
-const SB_URL = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '');
-const SB_KEY = process.env.SUPABASE_KEY || '';
+const SB_URL = String(process.env.SUPABASE_URL || '').trim().replace(/^["']|["']$/g, '').replace(/\/+$/, '');
+const SB_KEY = String(process.env.SUPABASE_KEY || '').trim().replace(/^["']|["']$/g, '');
 const remote = !!(SB_URL && SB_KEY);
-const sbHeaders = () => ({ apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' });
+// المفاتيح الجديدة (sb_secret_...) مش JWT فبتنبعت بترويسة apikey فقط. المفاتيح القديمة (service_role) بتحتاج Bearer كمان
+const sbHeaders = () => ({
+  apikey: SB_KEY,
+  ...(SB_KEY.startsWith('sb_') ? {} : { Authorization: `Bearer ${SB_KEY}` }),
+  'Content-Type': 'application/json',
+});
 let pushing = false;
 let pushAgain = false;
 let remoteTimer = null;
